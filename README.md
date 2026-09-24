@@ -1,58 +1,148 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# API de gestión de usuarios
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+API REST sencilla desarrollada con Laravel para crear, consultar, iniciar sesión, actualizar y eliminar usuarios. Los datos se almacenan en SQLite y las contraseñas se guardan usando hash.
 
-## About Laravel
+## Requisitos
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- PHP 8.3 o superior
+- Composer
+- Node.js y npm (solo si quieres compilar los recursos de frontend)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Instalación
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+Clona el repositorio y entra en el directorio del proyecto:
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+git clone <URL_DEL_REPOSITORIO>
+cd modelo-user
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Instala las dependencias y prepara el entorno:
 
-## Contributing
+```bash
+composer install
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Crea el archivo de entorno y genera la clave de la aplicación:
 
-## Code of Conduct
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+En Windows PowerShell, si aún no tienes `.env`, puedes usar:
 
-## Security Vulnerabilities
+```powershell
+Copy-Item .env.example .env
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+La configuración de ejemplo usa SQLite. Crea el archivo de base de datos si no existe y ejecuta las migraciones:
 
-## License
+```bash
+php -r "file_exists('database/database.sqlite') || touch('database/database.sqlite');"
+php artisan migrate
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Inicia el servidor local:
+
+```bash
+php artisan serve
+```
+
+La API estará disponible en `http://127.0.0.1:8000/api`.
+
+## Endpoints
+
+Todas las rutas están bajo el prefijo `/api`. Las respuestas y solicitudes usan JSON.
+
+| Método | Ruta | Descripción |
+| --- | --- | --- |
+| POST | `/api/user/create` | Crea un usuario |
+| GET | `/api/user/get` | Lista usuarios, paginados de 10 en 10 |
+| GET | `/api/user/login` | Comprueba email y contraseña |
+| POST | `/api/user/update_username` | Actualiza el nombre de usuario |
+| POST | `/api/user/update_email` | Actualiza el email |
+| POST | `/api/user/update_password` | Cambia la contraseña |
+| DELETE | `/api/user/delete` | Elimina el usuario |
+
+### Crear usuario
+
+`POST /api/user/create`
+
+```json
+{
+  "username": "ana",
+  "email": "ana@example.com",
+  "password": "ClaveSegura123"
+}
+```
+
+### Iniciar sesión
+
+La ruta está definida actualmente como `GET /api/user/login`. Requiere `email` y `password`. Al ser una petición GET, las credenciales pueden quedar expuestas en la URL o en registros; para un uso real, cambia esta ruta a POST y envía las credenciales en el cuerpo JSON.
+
+### Actualizar username
+
+`POST /api/user/update_username`
+
+```json
+{
+  "email": "ana@example.com",
+  "password": "ClaveSegura123",
+  "username": "ana_nueva"
+}
+```
+
+### Actualizar email
+
+`POST /api/user/update_email`
+
+```json
+{
+  "email": "ana@example.com",
+  "password": "ClaveSegura123",
+  "new_email": "ana.nueva@example.com"
+}
+```
+
+### Actualizar contraseña
+
+`POST /api/user/update_password`
+
+```json
+{
+  "email": "ana@example.com",
+  "password": "ClaveSegura123",
+  "new_password": "OtraClaveSegura456"
+}
+```
+
+### Eliminar usuario
+
+`DELETE /api/user/delete`
+
+```json
+{
+  "email": "ana@example.com",
+  "password": "ClaveSegura123"
+}
+```
+
+### Listar usuarios
+
+`GET /api/user/get`
+
+La lista devuelve 10 usuarios por página. Laravel incluye enlaces e información de paginación en la respuesta.
+
+## Validación y respuestas
+
+Laravel valida los campos requeridos y sus formatos. Si la validación falla, la API responde con errores de validación. Las operaciones protegidas comprueban el email y la contraseña; si las credenciales no coinciden, responden con estado `401`.
+
+El modelo oculta el hash de la contraseña en la serialización JSON. Aun así, evita devolver modelos completos en respuestas y limita los datos expuestos a los campos necesarios.
+
+## Tecnologías
+
+- Laravel 13
+- PHP 8.3+
+- SQLite
+- Laravel Sanctum (instalado en el proyecto)
